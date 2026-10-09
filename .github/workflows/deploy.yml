@@ -1,51 +1,51 @@
 name: Deploy website
 
-on:
-push:
-branches:
-- main
+"on":
+  push:
+    branches:
+      - main
 
 permissions:
-contents: read
+  contents: read
 
 jobs:
-deploy:
-runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  - name: Configure SSH
-    env:
-      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
-    run: |
-      mkdir -p ~/.ssh
-      chmod 700 ~/.ssh
-      printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
-      chmod 600 ~/.ssh/deploy_key
-      printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
-      chmod 600 ~/.ssh/known_hosts
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
-  - name: Verify server access
-    env:
-      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-    run: |
-      ssh -i ~/.ssh/deploy_key \
-        -o IdentitiesOnly=yes \
-        -o StrictHostKeyChecking=yes \
-        "$DEPLOY_USER@$DEPLOY_HOST" \
-        'test -w /var/www/tasks.mycses.ca && echo "Deployment directory is writable"'
+      - name: Verify server access
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            'test -w /var/www/tasks.mycses.ca && echo "Deployment directory is writable"'
 
-  - name: Deploy website files
-    env:
-      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-    run: |
-      scp -i ~/.ssh/deploy_key \
-        -o IdentitiesOnly=yes \
-        -o StrictHostKeyChecking=yes \
-        index.html index.js style.css 'CSESFullLogo(1).png' \
-        "$DEPLOY_USER@$DEPLOY_HOST:/var/www/tasks.mycses.ca/"
+      - name: Deploy website files
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            index.html index.js style.css 'CSESFullLogo(1).png' \
+            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/tasks.mycses.ca/"
