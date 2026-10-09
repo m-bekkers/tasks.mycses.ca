@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit a request</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="header-logo">
+          <img src="CSESFullLogo(1).png" alt="CSES Logo" width="200">
+        </div>
+        <div class="header-text" id="titlepage-text">
+          Affiliates Homepage
+        </div>
+      </header>
+
+      <main>
+        <h1>Submit a request</h1>
+        <form id="request-form" class="request-form">
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" placeholder="Your name" required>
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          </div>
+
+          <div class="field">
+            <label for="affiliate">Affiliate</label>
+              <select id="affiliate", name="affiliate" required>
+                <option value="" disabled selected>Select your Affiliate</option>
+                <option value="CFE">CFE</option>
+                <option value="CSCE">CSCE</option>
+                <option value="IEEE">IEEE</option>
+                <option value="C-Eng Musical">C-Eng Musical</option>
+                <option value="CUTE">CUTE</option>
+                <option value="Troitsky">Troitsky</option>
+                <option value="CPRT">CPRT</option>
+                <option value="EWB">EWB</option>
+                <option value="OnOrbit">OnOrbit</option>
+                <option value="CAIS">CAIS</option>
+                <option value="CAAS">CAAS</option>
+                <option value="CUBES">CUBES</option>
+                <option value="&Design">&Design</option>
+                <option value="NSBE">NSBE</option>
+                <option value="D-Eng-D">D-Eng-D</option>
+                <option value="DESoc">DESoc</option>
+                <option value="SREESoc">SREESoc</option>
+                <option value="TRONSoc">TRONSoc</option>
+                <option value="CSEE">CSEE</option>
+                <option value="InSpace">InSpace</option>
+                <option value="Eng-Knitters">Eng-Knitters</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+                <option value="CUE">CUE</option>
+                <option value="BITSoc">BITSoc</option>
+                <option value="CMAS">CMAS</option>
+                <option value="BBUAV">BBUAV</option>
+                <option value="SCESoc">SCESoc</option>
+                <option value="Racing">Racing</option>
+                <option value="ARC">ARC</option>
+                <option value="Conc Canoe">Conc Canoe</option>
+                <option value="BioCARE">BioCARE</option>
+                <option value="CROC">CROC</option>
+                <option value="OWWA/WEAO">OWWA/WEAO</option>
+                <option value="AIAA">AIAA</option>
+                <option value="AASA">AASA</option>
+              </select>
+          </div>
+
+          <div class="field">
+            <label for="request">Request</label>
+            <select id="request" name="request" required>
+              <option value="" disabled selected>Select a request</option>
+              <option value="account">Account help</option>
+              <option value="partnership">Partnership</option>
+              <option value="content">Content or campaign</option>
+              <option value="technical">Technical support</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="details">Request details</label>
+            <textarea id="details" name="details" placeholder="Enter request details" required></textarea>
+          </div>
+
+          <button type="submit">Submit</button>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        </form>
+        <div class="divider" aria-hidden="true"></div>
+      </main>
+    </div>
+  </body>
+</html>
+
