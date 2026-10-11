@@ -92,7 +92,7 @@ async function loadCurrentUser() {
     accountEmail.textContent = user.email || '';
     accountRole.textContent = user.role || 'unknown';
 
-    authStatus.textContent = '';
+    //authStatus.textContent = 'Sign-in successful.';
     signedIn.hidden = false;
     requestForm.hidden = false;
 
