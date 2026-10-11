@@ -1,12 +1,10 @@
 const requestForm = document.querySelector('#request-form');
 const formStatus = document.querySelector('#form-status');
 
-const authStatus = document.querySelector('#auth-status');
 const signedOut = document.querySelector('#signed-out');
 const signedIn = document.querySelector('#signed-in');
 const accountName = document.querySelector('#account-name');
 const accountEmail = document.querySelector('#account-email');
-const accountRole = document.querySelector('#account-role');
 const signOutButton = document.querySelector('#sign-out-button');
 
 const adminPanel = document.querySelector('#admin-panel');
@@ -67,7 +65,6 @@ async function loadAdminUsers() {
 }
 
 async function loadCurrentUser() {
-  authStatus.textContent = 'Checking sign-in status...';
   signedOut.hidden = true;
   signedIn.hidden = true;
   adminPanel.hidden = true;
@@ -77,7 +74,6 @@ async function loadCurrentUser() {
     const response = await fetch('/api/me');
 
     if (response.status === 401) {
-      authStatus.textContent = 'You are not currently signed in.';
       signedOut.hidden = false;
       return;
     }
@@ -90,9 +86,7 @@ async function loadCurrentUser() {
 
     accountName.textContent = user.name || 'User';
     accountEmail.textContent = user.email || '';
-    accountRole.textContent = user.role || 'unknown';
 
-    //authStatus.textContent = 'Sign-in successful.';
     signedIn.hidden = false;
     requestForm.hidden = false;
 
@@ -101,7 +95,7 @@ async function loadCurrentUser() {
       await loadAdminUsers();
     }
   } catch (error) {
-    authStatus.textContent = `Could not check sign-in status: ${error.message}`;
+    console.error('Could not check sign-in status:', error);
   }
 }
 
@@ -117,7 +111,7 @@ signOutButton.addEventListener('click', async () => {
 
     window.location.reload();
   } catch (error) {
-    authStatus.textContent = error.message;
+    console.error('Sign-out failed:', error);
     signOutButton.disabled = false;
   }
 });

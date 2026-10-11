@@ -45,8 +45,9 @@ body {
 }
 
 .user-info {
+  display: flex;
   grid-column: 3;
-  justify-content: right;
+  justify-content: flex-end;
 }
 
 .titlepage-text {
@@ -189,10 +190,20 @@ button:focus-visible {
   }
 
   .header-logo,
-  .header-text,
-  .user-info {
+  .header-text {
     grid-column: 1;
     justify-self: center;
+  }
+
+  .user-info {
+    grid-column: 1;
+    justify-self: stretch;
+  }
+
+  .auth-panel,
+  .auth-panel #signed-out,
+  .auth-panel #signed-in {
+    justify-content: center;
   }
 
   main {
@@ -214,7 +225,31 @@ button:focus-visible {
 }
 
 /* Authentication and administration */
-.auth-panel,
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.auth-panel #signed-out,
+.auth-panel #signed-in {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.auth-panel p {
+  margin: 0;
+}
+
 #admin-panel {
   margin: 1.5rem auto;
   padding: 1.25rem;
@@ -224,7 +259,6 @@ button:focus-visible {
   max-width: 576px;
 }
 
-.auth-panel p,
 #admin-panel p {
   margin-top: 0;
 }
@@ -246,7 +280,7 @@ button:focus-visible {
 }
 
 #sign-out-button {
-  margin-top: 0.25rem;
+  margin-top: 0;
 }
 
 #admin-panel h2 {
