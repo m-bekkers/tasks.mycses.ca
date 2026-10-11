@@ -158,7 +158,6 @@ button {
   cursor: pointer;
   transition: background-color 150ms ease;
   box-shadow: 3px 3px 0 var(--dark-purple);
-  transform: rotate(-1deg);
 }
 
 button:hover {
@@ -181,7 +180,6 @@ button:focus-visible {
   height: 1px;
   margin-top: 48px;
   background: var(--soft-border);
-  transform: rotate(0.12deg);
 }
 
 @media (max-width: 640px) {
