@@ -6,6 +6,7 @@ const signedIn = document.querySelector('#signed-in');
 const accountName = document.querySelector('#account-name');
 const accountEmail = document.querySelector('#account-email');
 const signOutButton = document.querySelector('#sign-out-button');
+const openProjectLink = document.querySelector('#openproject-link');
 
 const adminPanel = document.querySelector('#admin-panel');
 const adminStatus = document.querySelector('#admin-status');
@@ -94,9 +95,12 @@ async function loadCurrentUser() {
     if (signedIn) signedIn.hidden = false;
     if (requestForm) requestForm.hidden = false;
 
-    if (user.role === 'admin' && adminPanel) {
-      adminPanel.hidden = false;
-      await loadAdminUsers();
+    if (user.role === 'admin') {
+      if (openProjectLink) openProjectLink.hidden = false;
+      if (adminPanel) {
+        adminPanel.hidden = false;
+        await loadAdminUsers();
+      }
     }
   } catch (error) {
     console.error('Could not check sign-in status:', error);
