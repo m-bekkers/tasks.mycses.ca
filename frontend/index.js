@@ -77,7 +77,7 @@ async function loadCurrentUser() {
     const response = await fetch('/api/me');
 
     if (response.status === 401) {
-      authStatus.textContent = 'You are not signed in.';
+      authStatus.textContent = 'You are not currently signed in.';
       signedOut.hidden = false;
       return;
     }

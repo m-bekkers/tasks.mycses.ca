@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import sqlite3
@@ -10,6 +11,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 from starlette.middleware.sessions import SessionMiddleware
 
+logger = logging.getLogger(__name__)
 
 BASE_URL = os.environ.get(
     "BASE_URL", "https://tasks.mycses.ca"
@@ -245,11 +247,7 @@ async def google_callback(request: Request):
     except HTTPException:
         raise
     except Exception:
-        return JSONResponse(
-            status_code=401,
-            content={"detail": "Google sign-in failed"},
-        )
-
+        return JSONResponse(status_code=401, content={"detail": "Google sign-in failed"},)
 
 @app.get("/api/me")
 def current_user(request: Request):
