@@ -12,6 +12,10 @@ const adminStatus = document.querySelector('#admin-status');
 const adminUsers = document.querySelector('#admin-users');
 
 async function loadAdminUsers() {
+  if (!adminStatus || !adminUsers) {
+    return;
+  }
+
   adminStatus.textContent = 'Loading users...';
   adminUsers.replaceChildren();
 
@@ -65,16 +69,16 @@ async function loadAdminUsers() {
 }
 
 async function loadCurrentUser() {
-  signedOut.hidden = true;
-  signedIn.hidden = true;
-  adminPanel.hidden = true;
-  requestForm.hidden = true;
+  if (signedOut) signedOut.hidden = true;
+  if (signedIn) signedIn.hidden = true;
+  if (adminPanel) adminPanel.hidden = true;
+  if (requestForm) requestForm.hidden = true;
 
   try {
     const response = await fetch('/api/me');
 
     if (response.status === 401) {
-      signedOut.hidden = false;
+      if (signedOut) signedOut.hidden = false;
       return;
     }
 
@@ -84,13 +88,13 @@ async function loadCurrentUser() {
 
     const user = await response.json();
 
-    accountName.textContent = user.name || 'User';
-    accountEmail.textContent = user.email || '';
+    if (accountName) accountName.textContent = user.name || 'User';
+    if (accountEmail) accountEmail.textContent = user.email || '';
 
-    signedIn.hidden = false;
-    requestForm.hidden = false;
+    if (signedIn) signedIn.hidden = false;
+    if (requestForm) requestForm.hidden = false;
 
-    if (user.role === 'admin') {
+    if (user.role === 'admin' && adminPanel) {
       adminPanel.hidden = false;
       await loadAdminUsers();
     }
@@ -99,7 +103,7 @@ async function loadCurrentUser() {
   }
 }
 
-signOutButton.addEventListener('click', async () => {
+signOutButton?.addEventListener('click', async () => {
   signOutButton.disabled = true;
 
   try {
@@ -116,10 +120,12 @@ signOutButton.addEventListener('click', async () => {
   }
 });
 
-requestForm.addEventListener('submit', (event) => {
+requestForm?.addEventListener('submit', (event) => {
   event.preventDefault();
   formStatus.textContent =
     'The form is valid, but no submission service is connected yet.';
 });
 
-loadCurrentUser();
+if (signedOut && signedIn) {
+  loadCurrentUser();
+}

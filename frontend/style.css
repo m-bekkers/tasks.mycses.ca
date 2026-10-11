@@ -22,11 +22,12 @@ body {
 
 .site-header {
   display: grid;
-  justify-content: center;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 200px minmax(170px, 1fr) auto minmax(220px, auto);
   align-items: center;
+  gap: 20px;
   width: 100%;
   padding: 16px 24px;
+  background: var(--white);
   border-bottom: 2px solid var(--dark-purple);
 }
 
@@ -38,15 +39,36 @@ body {
 .header-text {
   grid-column: 2;
   justify-self: center;
+  text-align: center;
   color: var(--dark-grey);
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 700;
 }
 
-.user-info {
+.site-nav {
   display: flex;
   grid-column: 3;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+}
+
+.site-nav a {
+  color: var(--dark-purple);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.site-nav a:hover {
+  color: var(--red);
+}
+
+.site-header > .auth-panel {
+  display: flex;
+  grid-column: 4;
   justify-content: flex-end;
 }
 
@@ -187,25 +209,6 @@ button:focus-visible {
   background: #f7f6f8;
 }
 
-.landing-page .site-header {
-  grid-template-columns: 1fr auto;
-  justify-content: space-between;
-  background: var(--white);
-}
-
-.landing-page .header-logo {
-  grid-column: 1;
-}
-
-.landing-nav {
-  grid-column: 2;
-}
-
-.landing-nav .button-link {
-  padding: 10px 16px;
-  background: var(--dark-purple);
-}
-
 .landing-main {
   display: block;
   flex: 1;
@@ -339,6 +342,33 @@ button:focus-visible {
   font-size: 13px;
 }
 
+@media (max-width: 900px) {
+  .site-header {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 12px 20px;
+  }
+
+  .header-logo {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .header-text {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .site-nav {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .site-header > .auth-panel {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
 @media (max-width: 640px) {
   .site-header {
     grid-template-columns: 1fr;
@@ -346,14 +376,17 @@ button:focus-visible {
   }
 
   .header-logo,
-  .header-text {
+  .header-text,
+  .site-nav,
+  .site-header > .auth-panel {
     grid-column: 1;
+    grid-row: auto;
     justify-self: center;
   }
 
-  .user-info {
-    grid-column: 1;
-    justify-self: stretch;
+  .site-header > .auth-panel {
+    justify-content: center;
+    width: 100%;
   }
 
   .auth-panel,
@@ -379,18 +412,9 @@ button:focus-visible {
     padding-inline: 16px;
   }
 
-  .landing-page .site-header {
-    grid-template-columns: 1fr auto;
-  }
-
-  .landing-page .header-logo img {
+  .header-logo img {
     width: 150px;
     height: auto;
-  }
-
-  .landing-nav .button-link {
-    padding: 9px 11px;
-    font-size: 13px;
   }
 
   .landing-intro-inner {
