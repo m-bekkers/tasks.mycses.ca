@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - /opt/tasks-portal/secrets/backend.env
+    environment:
+      DATABASE_PATH: /data/portal.db
+    volumes:
+      - /opt/tasks-portal/data:/data
+    ports:
+      - "127.0.0.1:8001:8000"
+    networks:
+      - caddy-net
+    labels:
+      caddy: "http://tasks.mycses.ca"
+      caddy.@backend.path: "/auth/* /api/* /health"
+      caddy.0_handle: "@backend"
+      caddy.0_handle.0_reverse_proxy: "{{upstreams 8000}}"
+
+networks:
+  caddy-net:
+    external: true

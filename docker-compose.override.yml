@@ -1,0 +1,25 @@
+services:
+  landing:
+    image: nginx:alpine
+    volumes:
+      - /var/www/tasks:/usr/share/nginx/html:ro
+    networks:
+      - caddy-net
+    labels:
+      caddy: http://tasks.mycses.ca
+      caddy.2_handle: /*
+      caddy.2_handle.0_reverse_proxy: "{{upstreams 80}}"
+
+  proxy:
+    networks:
+      - default
+      - caddy-net
+    labels:
+      caddy: http://tasks.mycses.ca
+      caddy.1_handle: /openproject/*
+      caddy.1_handle.0_reverse_proxy: "{{upstreams 80}}"
+      caddy.1_handle.0_reverse_proxy.header_up: "X-Forwarded-Proto https"
+
+networks:
+  caddy-net:
+    external: true

@@ -242,7 +242,7 @@ async def google_callback(request: Request):
 
         request.session.clear()
         request.session["google_sub"] = google_sub
-        return RedirectResponse(url="/", status_code=303)
+        return RedirectResponse(url="/requests/", status_code=303)
 
     except HTTPException:
         raise
