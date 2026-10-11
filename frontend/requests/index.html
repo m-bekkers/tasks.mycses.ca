@@ -36,6 +36,14 @@
           <h2>Administration</h2>
           <p id="admin-status">Loading administration tools...</p>
           <div id="admin-users"></div>
+          <section class="work-package-admin" aria-labelledby="work-packages-title">
+            <div class="work-package-heading">
+              <h3 id="work-packages-title">Open work items</h3>
+              <button id="refresh-work-packages" type="button" aria-label="Refresh open work items">Refresh</button>
+            </div>
+            <p id="work-package-status" role="status" aria-live="polite"></p>
+            <div id="work-package-list"></div>
+          </section>
         </section>
 
         <h1>Submit a request to CSES</h1>
@@ -94,7 +102,7 @@
 
           <div class="field">
             <label for="request">Request</label>
-            <select id="request" name="request" required>
+            <select id="request" name="request_type" required>
               <option value="" disabled selected>Select a request</option>
               <option value="account">Account help</option>
               <option value="partnership">Partnership</option>

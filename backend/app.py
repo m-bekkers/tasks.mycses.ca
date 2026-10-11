@@ -8,8 +8,9 @@ from typing import Literal
 from authlib.integrations.starlette_client import OAuth
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from starlette.middleware.sessions import SessionMiddleware
+from openproject import OpenProjectClient, OpenProjectError
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +109,40 @@ class UserUpdate(BaseModel):
     active: bool | None = None
 
 
+class RequestSubmission(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    email: str = Field(min_length=3, max_length=254)
+    affiliate: str = Field(min_length=1, max_length=200)
+    request_type: Literal["account", "partnership", "content", "technical", "other"]
+    details: str = Field(min_length=1, max_length=20000)
+
+    @field_validator("name", "affiliate", "details")
+    @classmethod
+    def strip_required_text(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("This field cannot be blank")
+        return value
+
+
+class WorkPackageUpdate(BaseModel):
+    lock_version: int = Field(ge=0)
+    subject: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=20000)
+    status_id: int | None = Field(default=None, ge=1)
+    priority_id: int | None = Field(default=None, ge=1)
+    assignee_id: int | None = Field(default=None, ge=1)
+
+
+REQUEST_TYPE_LABELS = {
+    "account": "Account help",
+    "partnership": "Partnership",
+    "content": "Content or campaign",
+    "technical": "Technical support",
+    "other": "Something else",
+}
+
+
 def normalize_email(value: str) -> str:
     email = value.strip().lower()
     if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
@@ -138,6 +173,13 @@ def require_admin(request: Request):
     if user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Administrator access required")
     return user
+
+
+def openproject_call(operation):
+    try:
+        return operation()
+    except OpenProjectError as error:
+        raise HTTPException(status_code=error.status_code, detail=str(error)) from error
 
 
 @app.on_event("startup")
@@ -260,6 +302,32 @@ def current_user(request: Request):
     }
 
 
+@app.post("/api/requests", status_code=201)
+def submit_request(body: RequestSubmission, request: Request):
+    user = require_user(request)
+    contact_email = normalize_email(body.email)
+    subject = f"{body.affiliate.strip()} - {REQUEST_TYPE_LABELS[body.request_type]}"
+    description = (
+        f"Submitted through the CSES Affiliates Portal by: {user['name']} ({user['email']})\n\n"
+        f"Contact name: {body.name.strip()}\n"
+        f"Contact email: {contact_email}\n"
+        f"Affiliate: {body.affiliate.strip()}\n"
+        f"Request type: {REQUEST_TYPE_LABELS[body.request_type]}\n\n"
+        f"{body.details.strip()}"
+    )
+    created = openproject_call(
+        lambda: OpenProjectClient().create_request(
+            subject=subject,
+            description=description,
+        )
+    )
+    return {
+        "id": created["id"],
+        "subject": created["subject"],
+        "url": created["url"],
+    }
+
+
 @app.post("/auth/logout")
 def logout(request: Request):
     request.session.clear()
@@ -275,6 +343,29 @@ def list_users(request: Request):
             FROM users ORDER BY email
         """).fetchall()
     return [dict(user) for user in users]
+
+
+@app.get("/api/admin/work-packages")
+def list_open_work_packages(request: Request):
+    require_admin(request)
+    return openproject_call(lambda: OpenProjectClient().list_open_work_packages())
+
+
+@app.patch("/api/admin/work-packages/{work_package_id}")
+def update_work_package(
+    work_package_id: int,
+    body: WorkPackageUpdate,
+    request: Request,
+):
+    require_admin(request)
+    changes = body.model_dump(exclude_unset=True)
+    if not any(key != "lock_version" for key in changes):
+        raise HTTPException(status_code=400, detail="No work-package changes supplied")
+    if "subject" in changes and changes["subject"] is None:
+        raise HTTPException(status_code=400, detail="Subject cannot be null")
+    return openproject_call(
+        lambda: OpenProjectClient().update_work_package(work_package_id, changes)
+    )
 
 
 @app.post("/api/admin/users", status_code=201)

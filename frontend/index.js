@@ -11,6 +11,9 @@ const openProjectLink = document.querySelector('#openproject-link');
 const adminPanel = document.querySelector('#admin-panel');
 const adminStatus = document.querySelector('#admin-status');
 const adminUsers = document.querySelector('#admin-users');
+const workPackageList = document.querySelector('#work-package-list');
+const workPackageStatus = document.querySelector('#work-package-status');
+const refreshWorkPackagesButton = document.querySelector('#refresh-work-packages');
 
 async function loadAdminUsers() {
   if (!adminStatus || !adminUsers) {
@@ -69,6 +72,147 @@ async function loadAdminUsers() {
   }
 }
 
+function addWorkPackageTextField(form, labelText, name, value, multiline = false) {
+  const label = document.createElement('label');
+  label.className = 'work-package-field';
+  const labelTextElement = document.createElement('span');
+  labelTextElement.textContent = labelText;
+  const field = document.createElement(multiline ? 'textarea' : 'input');
+  field.name = name;
+  field.value = value || '';
+  if (!multiline) field.type = 'text';
+  label.append(labelTextElement, field);
+  form.append(label);
+}
+
+function addWorkPackageSelect(form, labelText, name, choices, selectedId, allowNone = false) {
+  const label = document.createElement('label');
+  label.className = 'work-package-field';
+  const labelTextElement = document.createElement('span');
+  labelTextElement.textContent = labelText;
+  const select = document.createElement('select');
+  select.name = name;
+
+  if (allowNone) {
+    const noneOption = document.createElement('option');
+    noneOption.value = '';
+    noneOption.textContent = 'Unassigned';
+    select.append(noneOption);
+  }
+
+  for (const choice of choices) {
+    const option = document.createElement('option');
+    option.value = choice.id;
+    option.textContent = choice.name;
+    option.selected = String(choice.id) === String(selectedId);
+    select.append(option);
+  }
+
+  label.append(labelTextElement, select);
+  form.append(label);
+}
+
+function renderWorkPackage(item, options) {
+  const article = document.createElement('article');
+  article.className = 'work-package-item';
+
+  const heading = document.createElement('div');
+  heading.className = 'work-package-item-heading';
+  const link = document.createElement('a');
+  link.href = item.url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = `#${item.id} ${item.subject}`;
+  heading.append(link);
+
+  const form = document.createElement('form');
+  form.className = 'work-package-edit-form';
+  form.dataset.workPackageId = item.id;
+  form.dataset.lockVersion = item.lock_version;
+  addWorkPackageTextField(form, 'Subject', 'subject', item.subject);
+  addWorkPackageTextField(form, 'Description', 'description', item.description, true);
+
+  const fields = document.createElement('div');
+  fields.className = 'work-package-fields';
+  addWorkPackageSelect(fields, 'Status', 'status_id', options.statuses, item.status_id);
+  addWorkPackageSelect(fields, 'Priority', 'priority_id', options.priorities, item.priority_id);
+  addWorkPackageSelect(fields, 'Assignee', 'assignee_id', options.assignees, item.assignee_id, true);
+  form.append(fields);
+
+  const actions = document.createElement('div');
+  actions.className = 'work-package-actions';
+  const saveButton = document.createElement('button');
+  saveButton.type = 'submit';
+  saveButton.textContent = 'Save changes';
+  actions.append(saveButton);
+  form.append(actions);
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    saveButton.disabled = true;
+    workPackageStatus.textContent = `Saving work item #${item.id}...`;
+    const values = new FormData(form);
+    const payload = {
+      lock_version: Number(form.dataset.lockVersion),
+      subject: values.get('subject').trim(),
+      description: values.get('description'),
+      status_id: Number(values.get('status_id')),
+      priority_id: Number(values.get('priority_id')),
+      assignee_id: values.get('assignee_id') ? Number(values.get('assignee_id')) : null,
+    };
+
+    try {
+      const response = await fetch(`/api/admin/work-packages/${item.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.detail || `Save failed (${response.status})`);
+      }
+      await loadOpenWorkPackages(`Work item #${item.id} saved.`);
+    } catch (error) {
+      workPackageStatus.textContent = `Could not save work item #${item.id}: ${error.message}`;
+      saveButton.disabled = false;
+    }
+  });
+
+  article.append(heading, form);
+  return article;
+}
+
+async function loadOpenWorkPackages(successMessage = '') {
+  if (!workPackageList || !workPackageStatus) return;
+  workPackageStatus.textContent = successMessage || 'Loading open work items...';
+  workPackageList.replaceChildren();
+
+  try {
+    const response = await fetch('/api/admin/work-packages');
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.detail || `Request failed (${response.status})`);
+    }
+    const data = await response.json();
+    if (!Array.isArray(data.items)) {
+      throw new Error('The work-item response was not a list.');
+    }
+    if (!data.items.length) {
+      workPackageStatus.textContent = successMessage || 'No open work items.';
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    for (const item of data.items) {
+      fragment.append(renderWorkPackage(item, data));
+    }
+    workPackageList.append(fragment);
+    workPackageStatus.textContent = successMessage || `${data.items.length} open work item(s).`;
+  } catch (error) {
+    workPackageStatus.textContent = `Could not load open work items: ${error.message}`;
+  }
+}
+
 async function loadCurrentUser() {
   if (signedOut) signedOut.hidden = true;
   if (signedIn) signedIn.hidden = true;
@@ -99,7 +243,7 @@ async function loadCurrentUser() {
       if (openProjectLink) openProjectLink.hidden = false;
       if (adminPanel) {
         adminPanel.hidden = false;
-        await loadAdminUsers();
+        await Promise.all([loadAdminUsers(), loadOpenWorkPackages()]);
       }
     }
   } catch (error) {
@@ -124,11 +268,34 @@ signOutButton?.addEventListener('click', async () => {
   }
 });
 
-requestForm?.addEventListener('submit', (event) => {
+requestForm?.addEventListener('submit', async (event) => {
   event.preventDefault();
-  formStatus.textContent =
-    'The form is valid, but no submission service is connected yet.';
+  const submitButton = requestForm.querySelector('[type="submit"]');
+  submitButton.disabled = true;
+  formStatus.textContent = 'Submitting your request...';
+  const values = new FormData(requestForm);
+  const payload = Object.fromEntries(values.entries());
+
+  try {
+    const response = await fetch('/api/requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result.detail || `Submission failed (${response.status})`);
+    }
+    formStatus.textContent = `Request #${result.id} was submitted to OpenProject.`;
+    requestForm.reset();
+  } catch (error) {
+    formStatus.textContent = `Could not submit request: ${error.message}`;
+  } finally {
+    submitButton.disabled = false;
+  }
 });
+
+refreshWorkPackagesButton?.addEventListener('click', () => loadOpenWorkPackages());
 
 if (signedOut && signedIn) {
   loadCurrentUser();

@@ -23,6 +23,23 @@ Serve the static site from `frontend/` with a web server configured to use `inde
 
 The API is in `backend/app.py`. It provides Google OAuth, session handling, user administration, and `/health`. Runtime credentials and database files belong outside the repository; see [backend/.env.example](backend/.env.example) for the required configuration names.
 
+### OpenProject work items
+
+Request submissions are created as OpenProject work packages. Only the backend holds the OpenProject API key; browser requests go through the authenticated portal API. Admins can list open work packages in the configured project and update their subject, description, status, priority, and assignee.
+
+Configure these variables in the host-managed `/opt/tasks-portal/secrets/backend.env` file:
+
+- `OPENPROJECT_API_URL`: OpenProject API v3 base URL, normally `https://tasks.mycses.ca/openproject/api/v3`.
+- `OPENPROJECT_API_KEY`: API key for a dedicated OpenProject integration account. The key is sent using OpenProject's Basic Auth format (`apikey` as the username).
+- `OPENPROJECT_PROJECT_ID`: Numeric ID of the project that receives portal requests.
+- `OPENPROJECT_TYPE_ID`: Optional work-package type ID. If omitted, the backend selects the project's default type, or its first available type.
+
+Give the integration account project membership and permission to view, create, and edit work packages, including assigning work packages if assignee editing is needed. Do not put the API key in frontend code or commit it. Rebuild and restart the backend after setting these values:
+
+```sh
+docker compose -f docker-compose.backend.yml up -d --build
+```
+
 The existing deployment uses `docker-compose.backend.yml` to build the API and attach it to the external Caddy network. On a configured host, the API can be rebuilt with:
 
 ```sh

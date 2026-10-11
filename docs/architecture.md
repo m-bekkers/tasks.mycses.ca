@@ -12,6 +12,12 @@
 
 Caddy routes `/auth/*`, `/api/*`, and `/health` to the backend; other paths are served by the static frontend. The request page loads shared assets from the frontend root, so it works at the nested `/requests/` path without duplicating styles or scripts.
 
+## Work item flow
+
+Authenticated users submit request form data to `POST /api/requests`. The backend adds the authenticated account identity and creates a work package in the configured OpenProject project. Admin-only `GET /api/admin/work-packages` lists open work packages and their editable status, priority, and assignee options. `PATCH /api/admin/work-packages/{id}` updates allowed fields using the work package lock version.
+
+OpenProject API credentials are held only in the backend's environment. The configured integration account needs project membership and permissions to view, create, and edit work packages. The browser never receives the API key.
+
 ## Ownership
 
 - `frontend/` owns browser pages, shared styles, and browser-side behavior.

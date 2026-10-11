@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py .
+COPY app.py openproject.py ./
 
 RUN useradd --system --uid 10001 appuser \
     && mkdir -p /data \
