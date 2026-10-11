@@ -28,6 +28,10 @@ jobs:
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      - name: Verify deployment key
+        run: |
+          ssh-keygen -y -f ~/.ssh/deploy_key | ssh-ketgen -lf -
+
       - name: Verify server access
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
