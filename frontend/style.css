@@ -207,3 +207,56 @@ button:focus-visible {
     padding-inline: 16px;
   }
 }
+
+/* Authentication and administration */
+.auth-panel,
+#admin-panel {
+  margin: 1.5rem auto;
+  padding: 1.25rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  max-width: 576px;
+}
+
+.auth-panel p,
+#admin-panel p {
+  margin-top: 0;
+}
+
+.button-link {
+  display: inline-block;
+  padding: 0.7rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background: #4b2e83;
+  color: #fff;
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.button-link:hover {
+  background: #35205f;
+}
+
+#sign-out-button {
+  margin-top: 0.25rem;
+}
+
+#admin-panel h2 {
+  margin-top: 0;
+}
+
+#admin-users ul {
+  padding-left: 1.25rem;
+}
+
+#admin-users li {
+  margin: 0.6rem 0;
+  overflow-wrap: anywhere;
+}
+
+[hidden] {
+  display: none !important;
+}

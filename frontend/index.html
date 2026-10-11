@@ -1,4 +1,4 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -19,6 +19,32 @@
       </header>
 
       <main>
+        <section id="auth-panel" class="auth-panel" aria-live="polite">
+          <p id="auth-status">Checking sign-in status...</p>
+
+          <div id="signed-out" hidden>
+            <p>Sign in with your CSES Google account to continue.</p>
+            <a class="button-link" href="/auth/google/login">
+              Sign in with Google
+            </a>
+          </div>
+
+          <div id="signed-in" hidden>
+            <p>
+              Signed in as <strong id="account-name"></strong>
+              (<span id="account-email"></span>)
+            </p>
+            <p>Role: <strong id="account-role"></strong></p>
+            <button id="sign-out-button" type="button">Sign out</button>
+          </div>
+        </section>
+
+        <section id="admin-panel" hidden>
+          <h2>Administration</h2>
+          <p id="admin-status">Loading administration tools...</p>
+          <div id="admin-users"></div>
+        </section>
+
         <h1>Submit a request to CSES</h1>
         <form id="request-form" class="request-form">
           <div class="field">
@@ -33,7 +59,7 @@
 
           <div class="field">
             <label for="affiliate">Affiliate</label>
-              <select id="affiliate", name="affiliate" required>
+              <select id="affiliate" name="affiliate" required>
                 <option value="" disabled selected>Select your Affiliate</option>
                 <option value="CFE">CFE</option>
                 <option value="CSCE">CSCE</option>

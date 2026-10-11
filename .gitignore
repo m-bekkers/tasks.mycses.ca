@@ -1,10 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Secrets and runtime data
 .env
 .env.*
 !.env.example
-*.pem
-*.key
-*.sql
-*.sql.gz
-*.dump
-*.bak
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Local tooling
 .DS_Store
