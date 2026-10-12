@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSES Affiliation Resources</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/index.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="header-brand" href="/" aria-label="CSES Affiliates Portal home">
+          <img src="/CSESFullLogo(1).png" alt="CSES Logo" width="160">
+          <span class="header-text">CSES Affiliates Portal</span>
+        </a>
+        <nav class="site-nav" aria-label="Main navigation">
+          <a href="/">Home</a>
+          <a href="/requests/">Submit a request</a>
+          <a href="/affiliation-resources/">CSES Affiliation Resources</a>
+        </nav>
+        <section id="auth-panel" class="auth-panel" aria-live="polite">
+          <div id="signed-out" hidden>
+            <p>Sign in with your CSES affiliate Google account to continue.</p>
+            <a class="button-link" href="/auth/google/login">Sign in with Google</a>
+          </div>
+          <div id="signed-in" hidden>
+            <p>Signed in as <strong id="account-name"></strong> (<span id="account-email"></span>)</p>
+            <button id="sign-out-button" type="button">Sign out</button>
+          </div>
+        </section>
+      </header>
+
+      <main>
+        <h1>CSES Affiliation Resources</h1>
+        
+        <div class="divider" aria-hidden="true"></div>
+      </main>
+    </div>
+  </body>
+</html>
