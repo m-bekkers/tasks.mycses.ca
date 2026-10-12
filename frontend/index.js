@@ -42,7 +42,10 @@ let adminStatus;
 let adminUsers;
 let workPackageList;
 let workPackageStatus;
+let workPackageEditor;
 let refreshWorkPackagesButton;
+let selectedWorkPackageId = null;
+let workPackageOptions = null;
 
 async function loadAdminUsers() {
   if (!adminStatus || !adminUsers) {
@@ -141,18 +144,60 @@ function addWorkPackageSelect(form, labelText, name, choices, selectedId, allowN
   form.append(label);
 }
 
-function renderWorkPackage(item, options) {
-  const article = document.createElement('article');
-  article.className = 'work-package-item';
+function renderWorkPackage(item) {
+  const row = document.createElement('div');
+  row.className = 'work-package-item';
+  const form = document.createElement('form');
+  form.className = 'work-package-select-form';
+  const selectButton = document.createElement('button');
+  selectButton.className = 'work-package-select';
+  selectButton.type = 'submit';
+  selectButton.setAttribute('aria-pressed', String(item.id === selectedWorkPackageId));
+
+  const itemTitle = document.createElement('span');
+  itemTitle.className = 'work-package-select-title';
+  itemTitle.textContent = `#${item.id} ${item.subject}`;
+  const itemSummary = document.createElement('span');
+  itemSummary.className = 'work-package-select-summary';
+  itemSummary.textContent = [item.status, item.priority, item.assignee].filter(Boolean).join(' · ');
+  selectButton.append(itemTitle, itemSummary);
+  form.append(selectButton);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    selectedWorkPackageId = item.id;
+    renderWorkPackageList();
+    renderWorkPackageEditor(item);
+  });
+
+  row.append(form);
+  return row;
+}
+
+function renderWorkPackageList() {
+  if (!workPackageList || !workPackageOptions) return;
+  const fragment = document.createDocumentFragment();
+  for (const item of workPackageOptions.items) {
+    fragment.append(renderWorkPackage(item));
+  }
+  workPackageList.replaceChildren(fragment);
+}
+
+function renderWorkPackageEditor(item) {
+  if (!workPackageEditor || !workPackageOptions) return;
+  workPackageEditor.replaceChildren();
+  workPackageEditor.hidden = false;
 
   const heading = document.createElement('div');
-  heading.className = 'work-package-item-heading';
-  const link = document.createElement('a');
-  link.href = item.url;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.textContent = `#${item.id} ${item.subject}`;
-  heading.append(link);
+  heading.className = 'work-package-editor-heading';
+  const title = document.createElement('h3');
+  title.id = 'work-package-editor-title';
+  title.textContent = `Edit work item #${item.id}`;
+  const openLink = document.createElement('a');
+  openLink.href = item.url;
+  openLink.target = '_blank';
+  openLink.rel = 'noopener noreferrer';
+  openLink.textContent = 'Open in OpenProject';
+  heading.append(title, openLink);
 
   const form = document.createElement('form');
   form.className = 'work-package-edit-form';
@@ -163,17 +208,27 @@ function renderWorkPackage(item, options) {
 
   const fields = document.createElement('div');
   fields.className = 'work-package-fields';
-  addWorkPackageSelect(fields, 'Status', 'status_id', options.statuses, item.status_id);
-  addWorkPackageSelect(fields, 'Priority', 'priority_id', options.priorities, item.priority_id);
-  addWorkPackageSelect(fields, 'Assignee', 'assignee_id', options.assignees, item.assignee_id, true);
+  addWorkPackageSelect(fields, 'Status', 'status_id', workPackageOptions.statuses, item.status_id);
+  addWorkPackageSelect(fields, 'Priority', 'priority_id', workPackageOptions.priorities, item.priority_id);
+  addWorkPackageSelect(fields, 'Assignee', 'assignee_id', workPackageOptions.assignees, item.assignee_id, true);
   form.append(fields);
 
   const actions = document.createElement('div');
   actions.className = 'work-package-actions';
+  const cancelButton = document.createElement('button');
+  cancelButton.type = 'button';
+  cancelButton.className = 'button-secondary';
+  cancelButton.textContent = 'Cancel';
+  cancelButton.addEventListener('click', () => {
+    selectedWorkPackageId = null;
+    workPackageEditor.hidden = true;
+    workPackageEditor.replaceChildren();
+    renderWorkPackageList();
+  });
   const saveButton = document.createElement('button');
   saveButton.type = 'submit';
   saveButton.textContent = 'Save changes';
-  actions.append(saveButton);
+  actions.append(cancelButton, saveButton);
   form.append(actions);
 
   form.addEventListener('submit', async (event) => {
@@ -207,8 +262,7 @@ function renderWorkPackage(item, options) {
     }
   });
 
-  article.append(heading, form);
-  return article;
+  workPackageEditor.append(heading, form);
 }
 
 async function loadOpenWorkPackages(successMessage = '') {
@@ -226,16 +280,25 @@ async function loadOpenWorkPackages(successMessage = '') {
     if (!Array.isArray(data.items)) {
       throw new Error('The work-item response was not a list.');
     }
+    workPackageOptions = data;
     if (!data.items.length) {
+      selectedWorkPackageId = null;
+      workPackageEditor.hidden = true;
+      workPackageEditor.replaceChildren();
       workPackageStatus.textContent = successMessage || 'No open work items.';
       return;
     }
 
-    const fragment = document.createDocumentFragment();
-    for (const item of data.items) {
-      fragment.append(renderWorkPackage(item, data));
+    if (!data.items.some((item) => item.id === selectedWorkPackageId)) {
+      selectedWorkPackageId = null;
+      workPackageEditor.hidden = true;
+      workPackageEditor.replaceChildren();
     }
-    workPackageList.append(fragment);
+    renderWorkPackageList();
+    if (selectedWorkPackageId !== null) {
+      const selectedItem = data.items.find((item) => item.id === selectedWorkPackageId);
+      if (selectedItem) renderWorkPackageEditor(selectedItem);
+    }
     workPackageStatus.textContent = successMessage || `${data.items.length} open work item(s).`;
   } catch (error) {
     workPackageStatus.textContent = `Could not load open work items: ${error.message}`;
@@ -309,6 +372,7 @@ async function initializePage() {
   adminUsers = document.querySelector('#admin-users');
   workPackageList = document.querySelector('#work-package-list');
   workPackageStatus = document.querySelector('#work-package-status');
+  workPackageEditor = document.querySelector('#work-package-editor');
   refreshWorkPackagesButton = document.querySelector('#refresh-work-packages');
 
   signOutButton?.addEventListener('click', async () => {

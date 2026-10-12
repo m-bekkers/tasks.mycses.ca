@@ -666,18 +666,78 @@ button:focus-visible {
 }
 
 .work-package-item {
-  padding: 18px 0;
+  padding: 0;
   border-top: 1px solid var(--soft-border);
 }
 
-.work-package-item-heading {
-  justify-content: flex-start;
-  margin-bottom: 12px;
+.work-package-select-form {
+  margin: 0;
 }
 
-.work-package-item-heading a {
+.work-package-select {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--dark-grey);
+  text-align: left;
+  box-shadow: none;
+  transform: none;
+}
+
+.work-package-select:hover,
+.work-package-select[aria-pressed="true"] {
+  background: rgb(65 32 75 / 7%);
+  filter: none;
+}
+
+.work-package-select-title {
   color: var(--dark-purple);
   font-weight: 700;
+}
+
+.work-package-select-summary {
+  color: var(--dark-grey);
+  font-size: 13px;
+  font-weight: 400;
+  text-align: right;
+}
+
+.work-package-editor {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--soft-border);
+  border-radius: 4px;
+  background: #f7f6f8;
+}
+
+.work-package-editor-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.work-package-editor-heading h3 {
+  margin: 0;
+  color: var(--dark-purple);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+}
+
+.work-package-editor-heading a {
+  color: var(--dark-purple);
+  font-size: 14px;
+  font-weight: 700;
+  text-underline-offset: 3px;
 }
 
 .work-package-edit-form {
@@ -707,6 +767,13 @@ button:focus-visible {
 .work-package-actions button {
   align-self: auto;
   transform: none;
+}
+
+.work-package-actions .button-secondary {
+  border-color: var(--soft-border);
+  background: var(--white);
+  color: var(--dark-grey);
+  box-shadow: none;
 }
 
 .button-link {
