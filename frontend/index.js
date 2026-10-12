@@ -308,7 +308,6 @@ async function loadOpenWorkPackages(successMessage = '') {
 async function loadCurrentUser() {
   if (signedOut) signedOut.hidden = true;
   if (signedIn) signedIn.hidden = true;
-  if (requestForm) requestForm.hidden = true;
   if (adminPanel) adminPanel.hidden = true;
 
   try {
