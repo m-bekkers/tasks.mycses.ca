@@ -312,6 +312,8 @@ async function initializePage() {
     event.preventDefault();
     const submitButton = requestForm.querySelector('[type="submit"]');
     submitButton.disabled = true;
+    formStatus.replaceChildren();
+    formStatus.dataset.state = 'pending';
     formStatus.textContent = 'Submitting your request...';
     const values = new FormData(requestForm);
     const payload = Object.fromEntries(values.entries());
@@ -324,11 +326,28 @@ async function initializePage() {
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(result.detail || `Submission failed (${response.status})`);
+        if (response.status === 401) {
+          throw new Error('Please sign in with your CSES affiliate Google account before submitting.');
+        }
+        throw new Error(result.detail || `Submission failed (${response.status}). Please try again.`);
       }
-      formStatus.textContent = `Request #${result.id} was submitted to OpenProject.`;
+      if (!result.id) {
+        throw new Error('The server did not confirm that your request was created. Please try again.');
+      }
+
+      formStatus.replaceChildren(document.createTextNode(`Your request #${result.id} was submitted successfully.`));
+      if (result.url) {
+        const link = document.createElement('a');
+        link.href = result.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = ' View request';
+        formStatus.append(link);
+      }
+      formStatus.dataset.state = 'success';
       requestForm.reset();
     } catch (error) {
+      formStatus.dataset.state = 'error';
       formStatus.textContent = `Could not submit request: ${error.message}`;
     } finally {
       submitButton.disabled = false;

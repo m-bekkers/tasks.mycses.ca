@@ -201,6 +201,14 @@ button:focus-visible {
   font-size: 14px;
 }
 
+.form-status[data-state="success"] {
+  color: #176b36;
+}
+
+.form-status[data-state="error"] {
+  color: var(--red);
+}
+
 .divider {
   width: min(100%, 1100px);
   height: 1px;
