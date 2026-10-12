@@ -1,19 +1,45 @@
-const requestForm = document.querySelector('#request-form');
-const formStatus = document.querySelector('#form-status');
+async function mountSharedComponents() {
+  const components = [
+    ['[data-site-header]', '/components/site-header.html'],
+    ['[data-site-footer]', '/components/site-footer.html'],
+  ];
 
-const signedOut = document.querySelector('#signed-out');
-const signedIn = document.querySelector('#signed-in');
-const accountName = document.querySelector('#account-name');
-const accountEmail = document.querySelector('#account-email');
-const signOutButton = document.querySelector('#sign-out-button');
-const openProjectLink = document.querySelector('#openproject-link');
+  await Promise.all(components.map(async ([selector, url]) => {
+    const target = document.querySelector(selector);
+    if (!target) return;
 
-const adminPanel = document.querySelector('#admin-panel');
-const adminStatus = document.querySelector('#admin-status');
-const adminUsers = document.querySelector('#admin-users');
-const workPackageList = document.querySelector('#work-package-list');
-const workPackageStatus = document.querySelector('#work-package-status');
-const refreshWorkPackagesButton = document.querySelector('#refresh-work-packages');
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Could not load ${url} (${response.status})`);
+      }
+      target.innerHTML = await response.text();
+    } catch (error) {
+      console.error(error);
+    }
+  }));
+
+  const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+  document.querySelectorAll('.site-nav a').forEach((link) => {
+    const linkPath = new URL(link.href).pathname.replace(/\/$/, '') || '/';
+    if (linkPath === currentPath) link.setAttribute('aria-current', 'page');
+  });
+}
+
+let requestForm;
+let formStatus;
+let signedOut;
+let signedIn;
+let accountName;
+let accountEmail;
+let signOutButton;
+let openProjectLink;
+let adminPanel;
+let adminStatus;
+let adminUsers;
+let workPackageList;
+let workPackageStatus;
+let refreshWorkPackagesButton;
 
 async function loadAdminUsers() {
   if (!adminStatus || !adminUsers) {
@@ -251,52 +277,69 @@ async function loadCurrentUser() {
   }
 }
 
-signOutButton?.addEventListener('click', async () => {
-  signOutButton.disabled = true;
+async function initializePage() {
+  await mountSharedComponents();
 
-  try {
-    const response = await fetch('/auth/logout', { method: 'POST' });
+  requestForm = document.querySelector('#request-form');
+  formStatus = document.querySelector('#form-status');
+  signedOut = document.querySelector('#signed-out');
+  signedIn = document.querySelector('#signed-in');
+  accountName = document.querySelector('#account-name');
+  accountEmail = document.querySelector('#account-email');
+  signOutButton = document.querySelector('#sign-out-button');
+  openProjectLink = document.querySelector('#openproject-link');
+  adminPanel = document.querySelector('#admin-panel');
+  adminStatus = document.querySelector('#admin-status');
+  adminUsers = document.querySelector('#admin-users');
+  workPackageList = document.querySelector('#work-package-list');
+  workPackageStatus = document.querySelector('#work-package-status');
+  refreshWorkPackagesButton = document.querySelector('#refresh-work-packages');
 
-    if (!response.ok) {
-      throw new Error(`Sign-out failed (${response.status})`);
+  signOutButton?.addEventListener('click', async () => {
+    signOutButton.disabled = true;
+
+    try {
+      const response = await fetch('/auth/logout', { method: 'POST' });
+      if (!response.ok) throw new Error(`Sign-out failed (${response.status})`);
+      window.location.reload();
+    } catch (error) {
+      console.error('Sign-out failed:', error);
+      signOutButton.disabled = false;
     }
+  });
 
-    window.location.reload();
-  } catch (error) {
-    console.error('Sign-out failed:', error);
-    signOutButton.disabled = false;
-  }
-});
+  requestForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submitButton = requestForm.querySelector('[type="submit"]');
+    submitButton.disabled = true;
+    formStatus.textContent = 'Submitting your request...';
+    const values = new FormData(requestForm);
+    const payload = Object.fromEntries(values.entries());
 
-requestForm?.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const submitButton = requestForm.querySelector('[type="submit"]');
-  submitButton.disabled = true;
-  formStatus.textContent = 'Submitting your request...';
-  const values = new FormData(requestForm);
-  const payload = Object.fromEntries(values.entries());
-
-  try {
-    const response = await fetch('/api/requests', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(result.detail || `Submission failed (${response.status})`);
+    try {
+      const response = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.detail || `Submission failed (${response.status})`);
+      }
+      formStatus.textContent = `Request #${result.id} was submitted to OpenProject.`;
+      requestForm.reset();
+    } catch (error) {
+      formStatus.textContent = `Could not submit request: ${error.message}`;
+    } finally {
+      submitButton.disabled = false;
     }
-    formStatus.textContent = `Request #${result.id} was submitted to OpenProject.`;
-    requestForm.reset();
-  } catch (error) {
-    formStatus.textContent = `Could not submit request: ${error.message}`;
-  } finally {
-    submitButton.disabled = false;
+  });
+
+  refreshWorkPackagesButton?.addEventListener('click', () => loadOpenWorkPackages());
+
+  if (signedOut && signedIn) {
+    loadCurrentUser();
   }
-});
-
-refreshWorkPackagesButton?.addEventListener('click', () => loadOpenWorkPackages());
-
-if (signedOut && signedIn) {
-  loadCurrentUser();
 }
+
+initializePage();

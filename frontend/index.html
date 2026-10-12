@@ -6,32 +6,11 @@
     <meta name="theme-color" content="#41204B">
     <title>CSES Affiliates Portal</title>
     <link rel="stylesheet" href="/style.css">
-    <script src="/index.js" defer></script>
+    <script src="/index.js?v=3" defer></script>
   </head>
   <body class="landing-page">
     <div class="page-shell landing-shell">
-      <header class="site-header">
-        <a class="header-brand" href="/" aria-label="CSES Affiliates Portal home">
-          <img src="/CSESFullLogo(1).png" alt="CSES Logo" width="160">
-          <span class="header-text">CSES Affiliates Portal</span>
-        </a>
-        <nav class="site-nav" aria-label="Main navigation">
-          <a href="/">Home</a>
-          <a href="/requests/">Submit a request</a>
-          <a href="/affiliation-resources/">CSES affiliation resources</a>
-          <a id="openproject-link" href="/openproject/" hidden>OpenProject</a>
-        </nav>
-        <section id="auth-panel" class="auth-panel" aria-live="polite">
-          <div id="signed-out" hidden>
-            <p>Sign in with your CSES affiliate Google account to continue.</p>
-            <a class="button-link" href="/auth/google/login">Sign in with Google</a>
-          </div>
-          <div id="signed-in" hidden>
-            <p>Signed in as <strong id="account-name"></strong> (<span id="account-email"></span>)</p>
-            <button id="sign-out-button" type="button">Sign out</button>
-          </div>
-        </section>
-      </header>
+      <div data-site-header></div>
 
       <main class="landing-main">
         <section class="landing-intro" aria-labelledby="landing-title">
@@ -75,10 +54,7 @@
           </article>
         </section>
       </main>
-      <footer class="landing-footer">
-        <span>CSES Affiliates Portal</span>
-        <span>For CSES-affiliated groups</span>
-      </footer>
+      <div data-site-footer></div>
     </div>
   </body>
 </html>
