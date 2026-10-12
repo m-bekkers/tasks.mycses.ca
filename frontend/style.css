@@ -345,6 +345,95 @@ button:focus-visible {
   font-size: 13px;
 }
 
+.resources-main {
+  display: block;
+  padding: 0;
+}
+
+.resources-intro {
+  border-bottom: 1px solid var(--soft-border);
+  background: #f0edf2;
+}
+
+.resources-inner,
+.resources-content {
+  width: min(100%, 1100px);
+  margin-inline: auto;
+}
+
+.resources-inner {
+  padding: 64px 28px 56px;
+}
+
+.resources-main h1 {
+  width: min(100%, 780px);
+  margin: 0;
+  color: var(--dark-purple);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 48px;
+  font-weight: 400;
+  line-height: 1.12;
+  transform: none;
+}
+
+.resources-lead {
+  max-width: 720px;
+  margin: 18px 0 0;
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.resources-note {
+  max-width: 760px;
+  margin: 22px 0 10px;
+  padding-left: 14px;
+  border-left: 3px solid var(--red);
+  color: var(--dark-grey);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.resources-content {
+  padding: 20px 28px 60px;
+}
+
+.resource-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 18px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--soft-border);
+}
+
+.resource-row .service-index {
+  margin-top: 5px;
+}
+
+.resource-row h2 {
+  margin: 0 0 8px;
+  color: var(--dark-purple);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.resource-row p:not(.service-index) {
+  max-width: 780px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.resources-contact {
+  margin: 28px 0 0;
+  line-height: 1.6;
+}
+
+.resources-contact a {
+  color: var(--dark-purple);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
 @media (max-width: 900px) {
   .site-header {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -392,8 +481,11 @@ button:focus-visible {
   }
 
   .site-nav {
+    width: 100%;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
+    white-space: normal;
   }
 
   .site-header > .auth-panel {
@@ -465,6 +557,27 @@ button:focus-visible {
     flex-direction: column;
     gap: 6px;
     padding-inline: 20px;
+  }
+
+  .resources-inner {
+    padding: 48px 20px 40px;
+  }
+
+  .resources-main h1 {
+    font-size: 38px;
+  }
+
+  .resources-lead {
+    font-size: 16px;
+  }
+
+  .resources-content {
+    padding: 12px 20px 44px;
+  }
+
+  .resource-row {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 12px;
   }
 
   .work-package-fields {
