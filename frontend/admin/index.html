@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#41204B">
+    <title>Administration | CSES Affiliates Portal</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/index.js?v=5" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div data-site-header></div>
+
+      <main id="admin-page" class="admin-main">
+        <h1>Administration</h1>
+        <p id="admin-access-status" role="status" aria-live="polite">Checking administrator access...</p>
+        <section id="admin-panel" hidden>
+          <section aria-labelledby="admin-users-title">
+            <h2 id="admin-users-title">Portal users</h2>
+            <p id="admin-status">Loading users...</p>
+            <div id="admin-users"></div>
+          </section>
+
+          <section class="work-package-admin" aria-labelledby="work-packages-title">
+            <div class="work-package-heading">
+              <h2 id="work-packages-title">Open work items</h2>
+              <button id="refresh-work-packages" type="button" aria-label="Refresh open work items">Refresh</button>
+            </div>
+            <p id="work-package-status" role="status" aria-live="polite"></p>
+            <div id="work-package-list"></div>
+          </section>
+        </section>
+      </main>
+
+      <div data-site-footer></div>
+    </div>
+  </body>
+</html>

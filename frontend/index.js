@@ -33,7 +33,10 @@ let signedIn;
 let accountName;
 let accountEmail;
 let signOutButton;
+let adminLink;
 let openProjectLink;
+let adminPage;
+let adminAccessStatus;
 let adminPanel;
 let adminStatus;
 let adminUsers;
@@ -242,14 +245,17 @@ async function loadOpenWorkPackages(successMessage = '') {
 async function loadCurrentUser() {
   if (signedOut) signedOut.hidden = true;
   if (signedIn) signedIn.hidden = true;
-  if (adminPanel) adminPanel.hidden = true;
   if (requestForm) requestForm.hidden = true;
+  if (adminPanel) adminPanel.hidden = true;
 
   try {
     const response = await fetch('/api/me');
 
     if (response.status === 401) {
       if (signedOut) signedOut.hidden = false;
+      if (adminAccessStatus) {
+        adminAccessStatus.textContent = 'Sign in with an administrator account to access this page.';
+      }
       return;
     }
 
@@ -266,14 +272,21 @@ async function loadCurrentUser() {
     if (requestForm) requestForm.hidden = false;
 
     if (user.role === 'admin') {
+      if (adminLink) adminLink.hidden = false;
       if (openProjectLink) openProjectLink.hidden = false;
-      if (adminPanel) {
+      if (adminPage && adminPanel) {
+        if (adminAccessStatus) adminAccessStatus.hidden = true;
         adminPanel.hidden = false;
         await Promise.all([loadAdminUsers(), loadOpenWorkPackages()]);
       }
+    } else if (adminAccessStatus) {
+      adminAccessStatus.textContent = 'You do not have permission to access administration.';
     }
   } catch (error) {
     console.error('Could not check sign-in status:', error);
+    if (adminAccessStatus) {
+      adminAccessStatus.textContent = 'Could not verify administrator access. Please reload the page.';
+    }
   }
 }
 
@@ -287,7 +300,10 @@ async function initializePage() {
   accountName = document.querySelector('#account-name');
   accountEmail = document.querySelector('#account-email');
   signOutButton = document.querySelector('#sign-out-button');
+  adminLink = document.querySelector('#admin-link');
   openProjectLink = document.querySelector('#openproject-link');
+  adminPage = document.querySelector('#admin-page');
+  adminAccessStatus = document.querySelector('#admin-access-status');
   adminPanel = document.querySelector('#admin-panel');
   adminStatus = document.querySelector('#admin-status');
   adminUsers = document.querySelector('#admin-users');

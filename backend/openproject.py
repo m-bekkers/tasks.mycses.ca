@@ -69,6 +69,8 @@ class OpenProjectClient:
     @staticmethod
     def _linked_id(work_package: dict, name: str) -> int | None:
         href = work_package.get("_links", {}).get(name, {}).get("href", "")
+        if not isinstance(href, str):
+            return None
         match = re.search(r"/(\d+)(?:\?.*)?$", href)
         return int(match.group(1)) if match else None
 

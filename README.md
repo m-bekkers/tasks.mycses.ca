@@ -8,6 +8,7 @@ The portal is a static frontend with a small FastAPI authentication and administ
 frontend/                 Static pages and shared styles/scripts
   index.html              Portal landing page
   requests/index.html     Request form and account controls
+  admin/index.html        Admin-only user and OpenProject work-item tools
   affiliation-resources/   Affiliation information page
   components/              Shared header and footer fragments
 backend/                  FastAPI API, OAuth, and SQLite user store
@@ -19,7 +20,7 @@ Root Compose files are kept in place because the existing host deployment relies
 
 ## Frontend
 
-Serve the static site from `frontend/` with a web server configured to use `index.html` for `/` and directory indexes for nested page routes. Shared frontend assets remain at the site root. `index.js` loads `components/site-header.html` and `components/site-footer.html` into each page's shell placeholders before initializing account controls. Deploy the entire `frontend/` tree, including `components/`; do not copy pages alone. When changing `index.js`, increment its `?v=` query in each page to invalidate cached copies. The request form retains Google sign-in, OpenProject submission, administrator work-item management, and sign-out behavior.
+Serve the static site from `frontend/` with a web server configured to use `index.html` for `/` and directory indexes for nested page routes. Shared frontend assets remain at the site root. `index.js` loads `components/site-header.html` and `components/site-footer.html` into each page's shell placeholders before initializing account controls. Deploy the entire `frontend/` tree, including `components/`; do not copy pages alone. When changing `index.js`, increment its `?v=` query in each page to invalidate cached copies. Request submission lives at `/requests/`; portal-user administration and OpenProject work-item management live at `/admin/` and are only rendered after the backend confirms an administrator session. The corresponding API endpoints also enforce administrator authorization.
 
 ## Backend
 
